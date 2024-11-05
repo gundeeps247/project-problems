@@ -1,12 +1,11 @@
-
-
-
 import React, { useState, useEffect, useCallback } from "react";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { auth, db } from "../firebase-config";
+import { useNavigate } from "react-router-dom";
 
 function Comments({ postId, isAuth }) {
   const [comments, setComments] = useState([]);
+  const navigate = useNavigate();
 
   // Memoize loadComments so it doesn't get recreated on each render
   const loadComments = useCallback(async () => {
@@ -18,11 +17,11 @@ function Comments({ postId, isAuth }) {
     } catch (error) {
       console.error("Error loading comments: ", error);
     }
-  }, [postId]); // Add postId as a dependency since it's used inside the function
+  }, [postId]); 
 
   useEffect(() => {
     loadComments();
-  }, [loadComments]); // Include loadComments in the dependency array
+  }, [loadComments]);
 
   const addComment = async (commentText) => {
     if (commentText.trim() === "") return;
@@ -45,13 +44,23 @@ function Comments({ postId, isAuth }) {
     }
   };
 
+  const handleProfileClick = (userId) => {
+    navigate(`/profile/${userId}`);
+  };
+
   return (
     <div className="commentsSection">
       <h4>Comments:</h4>
       <div>
         {comments.length > 0 ? (
           comments.map((comment, index) => (
-            <p key={index}><strong>{comment.author.name}:</strong> {comment.text}</p>
+            <p
+              key={index}
+              onClick={() => handleProfileClick(comment.author.id)}
+              style={{ cursor: "pointer", color: "blue" }}
+            >
+              <strong>{comment.author.name}:</strong> {comment.text}
+            </p>
           ))
         ) : (
           <p>No comments yet. Be the first to comment!</p>
